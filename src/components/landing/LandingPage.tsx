@@ -32,8 +32,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
     <div className="space-y-12 pb-16 font-sans">
       {/* Hero Section */}
       <section className="relative pt-6 sm:pt-10">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="parchment-card rounded-3xl p-6 sm:p-10 relative overflow-hidden text-center shadow-xl">
+        <div className="max-w-5xl lg:max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="parchment-card rounded-3xl p-6 sm:p-10 lg:p-12 relative overflow-hidden text-center shadow-xl w-full">
             {/* Screws in corners */}
             <div className="absolute top-4 left-4"><ScrewRivet /></div>
             <div className="absolute top-4 right-4"><ScrewRivet /></div>
@@ -48,14 +48,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
 
             {/* Main Headline */}
-            <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl font-bold text-[#63463C] dark:text-[#F5EDE5] tracking-tight mb-4 leading-tight">
+            <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl font-bold text-[#63463C] dark:text-[#F5EDE5] tracking-tight mb-4 leading-tight max-w-4xl mx-auto">
               Little details.{' '}
               <span className="italic font-normal text-[#777B59] dark:text-[#A6A98A]">Beautifully</span>{' '}
               planned moments.
             </h1>
 
             {/* Subtitle */}
-            <p className="text-sm sm:text-base text-[#392D29]/80 dark:text-[#D7C5C0] max-w-2xl mx-auto mb-8 font-sans leading-relaxed">
+            <p className="text-sm sm:text-base md:text-lg text-[#392D29]/80 dark:text-[#D7C5C0] max-w-3xl mx-auto mb-8 font-sans leading-relaxed">
               Moss & Moments combines the warmth of a vintage storybook with modern GenAI planning. Organize guests, budgets, checklists, and run-of-show timelines for gatherings that linger softly in memory.
             </p>
 
@@ -250,7 +250,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       </section>
 
       {/* Testimonials */}
-      <section className="max-w-4xl mx-auto px-4">
+      <section className="max-w-5xl lg:max-w-6xl mx-auto px-4 sm:px-6">
         <div className="parchment-card rounded-3xl p-8 sm:p-10 text-center relative border-2 border-[#D6BDA5] dark:border-[#5A5055]">
           <div className="absolute top-3 left-3"><ScrewRivet /></div>
           <div className="absolute top-3 right-3"><ScrewRivet /></div>

@@ -26,6 +26,7 @@ interface EventListProps {
   onEditEvent: (event: EventItem) => void;
   onDeleteEvent: (id: string) => void;
   onOpenAIPlannerForEvent: (event: EventItem) => void;
+  onOpenTeamForEvent?: (event: EventItem) => void;
 }
 
 export const EventList: React.FC<EventListProps> = ({
@@ -36,6 +37,7 @@ export const EventList: React.FC<EventListProps> = ({
   onEditEvent,
   onDeleteEvent,
   onOpenAIPlannerForEvent,
+  onOpenTeamForEvent,
 }) => {
   const { formatMoney } = useCurrency();
   const [activeTabMode, setActiveTabMode] = useState<'calendar' | 'grid'>('calendar');
@@ -233,6 +235,15 @@ export const EventList: React.FC<EventListProps> = ({
                     </button>
 
                     <div className="flex items-center gap-1">
+                      {onOpenTeamForEvent && (
+                        <button
+                          onClick={() => onOpenTeamForEvent(evt)}
+                          className="p-1.5 rounded-lg text-[#777B59] dark:text-[#A6A98A] hover:bg-[#F4E8D9] dark:hover:bg-[#454047] transition-colors cursor-pointer"
+                          title="Manage Circle & Collaborators"
+                        >
+                          <Users className="w-4 h-4 text-[#777B59]" />
+                        </button>
+                      )}
                       <button
                         onClick={() => onOpenAIPlannerForEvent(evt)}
                         className="p-1.5 rounded-lg text-[#777B59] dark:text-[#A6A98A] hover:bg-[#F4E8D9] dark:hover:bg-[#454047] transition-colors cursor-pointer"

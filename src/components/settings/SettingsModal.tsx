@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   X,
   Globe,
@@ -9,17 +9,23 @@ import {
   ShieldCheck,
   Sparkles,
   Info,
+  RotateCcw,
+  AlertTriangle,
+  Users,
 } from 'lucide-react';
 import { ScrewRivet, MushroomIcon } from '../common/WoodlandIcons';
 import { useCurrency } from '../../hooks/useCurrency';
 import { UserProfile } from '../../types';
+import { isSupabaseConfigured } from '../../services/supabase';
 
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
   user: UserProfile;
   onSelectUser: (user: UserProfile) => void;
-  initialTab?: 'currency' | 'profile';
+  initialTab?: 'currency' | 'profile' | 'security';
+  onResetData?: () => void;
+  onOpenAuth?: () => void;
 }
 
 const PRESET_ORGANIZERS: UserProfile[] = [
@@ -51,9 +57,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onClose,
   user,
   onSelectUser,
-  initialTab = 'currency',
+  initialTab = 'profile',
+  onResetData,
+  onOpenAuth,
 }) => {
-  const [activeTab, setActiveTab] = useState<'currency' | 'profile'>(initialTab);
+  const [activeTab, setActiveTab] = useState<'currency' | 'profile' | 'security'>(initialTab);
   const {
     settings,
     ratesState,
@@ -69,10 +77,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     supportedCurrencies,
   } = useCurrency();
 
+  // Keep activeTab in sync with initialTab when reopened
+  useEffect(() => {
+    if (isOpen) {
+      setActiveTab(initialTab);
+    }
+  }, [isOpen, initialTab]);
+
   // Local editing for custom profile
   const [customName, setCustomName] = useState(user.displayName);
   const [customRole, setCustomRole] = useState(user.role);
   const [saveMessage, setSaveMessage] = useState('');
+
+  useEffect(() => {
+    setCustomName(user.displayName);
+    setCustomRole(user.role);
+  }, [user]);
 
   if (!isOpen) return null;
 
@@ -80,11 +100,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     e.preventDefault();
     const updated: UserProfile = {
       ...user,
-      displayName: customName || user.displayName,
-      role: customRole || user.role,
+      displayName: customName.trim() || user.displayName,
+      role: customRole.trim() || user.role,
     };
     onSelectUser(updated);
-    setSaveMessage('Profile details updated!');
+    setSaveMessage('Profile details saved successfully!');
     setTimeout(() => setSaveMessage(''), 2500);
   };
 
@@ -104,7 +124,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
         <button
           onClick={onClose}
-          className="absolute top-4 right-10 p-1.5 rounded-lg text-[#63463C] dark:text-[#D7C5C0] hover:bg-[#F4E8D9] dark:hover:bg-[#454047] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B58D99]"
+          className="absolute top-4 right-10 p-1.5 rounded-lg text-[#63463C] dark:text-[#D7C5C0] hover:bg-[#F4E8D9] dark:hover:bg-[#454047] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B58D99] cursor-pointer"
           aria-label="Close settings"
         >
           <X className="w-5 h-5" />
@@ -113,17 +133,29 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         {/* Header */}
         <div className="flex items-center gap-2 mb-1">
           <MushroomIcon className="w-5 h-5 text-[#777B59] dark:text-[#A6A98A]" />
-          <span className="font-hand text-lg text-[#777B59] dark:text-[#A6A98A]">Preferences & Region</span>
+          <span className="font-hand text-lg text-[#777B59] dark:text-[#A6A98A]">Woodland Settings & Account</span>
         </div>
         <h2 className="font-serif text-2xl font-bold text-[#63463C] dark:text-[#F5EDE5] mb-5">
-          Woodland Settings
+          Account & Preferences
         </h2>
 
         {/* Tab navigation */}
         <div className="flex items-center gap-1.5 p-1 bg-[#F4E8D9] dark:bg-[#29272A] rounded-xl border border-[#D6BDA5] dark:border-[#5A5055] mb-6 text-xs">
           <button
+            onClick={() => setActiveTab('profile')}
+            className={`flex-1 py-2 rounded-lg font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
+              activeTab === 'profile'
+                ? 'bg-[#777B59] text-[#FFF8EF] shadow-sm'
+                : 'text-[#63463C] dark:text-[#D7C5C0] hover:text-[#392D29] dark:hover:text-[#F5EDE5]'
+            }`}
+          >
+            <User className="w-3.5 h-3.5" />
+            <span>My Profile</span>
+          </button>
+
+          <button
             onClick={() => setActiveTab('currency')}
-            className={`flex-1 py-2 rounded-lg font-bold flex items-center justify-center gap-2 transition-colors ${
+            className={`flex-1 py-2 rounded-lg font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
               activeTab === 'currency'
                 ? 'bg-[#777B59] text-[#FFF8EF] shadow-sm'
                 : 'text-[#63463C] dark:text-[#D7C5C0] hover:text-[#392D29] dark:hover:text-[#F5EDE5]'
@@ -132,16 +164,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <Globe className="w-3.5 h-3.5" />
             <span>Currency & Region</span>
           </button>
+
           <button
-            onClick={() => setActiveTab('profile')}
-            className={`flex-1 py-2 rounded-lg font-bold flex items-center justify-center gap-2 transition-colors ${
-              activeTab === 'profile'
+            onClick={() => setActiveTab('security')}
+            className={`flex-1 py-2 rounded-lg font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
+              activeTab === 'security'
                 ? 'bg-[#777B59] text-[#FFF8EF] shadow-sm'
                 : 'text-[#63463C] dark:text-[#D7C5C0] hover:text-[#392D29] dark:hover:text-[#F5EDE5]'
             }`}
           >
-            <User className="w-3.5 h-3.5" />
-            <span>Profile & Account</span>
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>Security & Demo</span>
           </button>
         </div>
 
@@ -280,66 +313,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </span>
             </div>
 
-            {/* Quick Switch Persona */}
-            <div>
-              <label className="block font-bold text-[#63463C] dark:text-[#F5EDE5] mb-1.5">
-                Switch Organizer Workspace
-              </label>
-              <div className="space-y-2">
-                {PRESET_ORGANIZERS.map((org) => {
-                  const isSelected = user.id === org.id;
-                  return (
-                    <button
-                      key={org.id}
-                      onClick={() => {
-                        onSelectUser(org);
-                        setCustomName(org.displayName);
-                        setCustomRole(org.role);
-                        setSaveMessage(`Switched to ${org.displayName}`);
-                        setTimeout(() => setSaveMessage(''), 2000);
-                      }}
-                      className={`w-full p-2.5 rounded-xl border text-left flex items-center justify-between transition-all ${
-                        isSelected
-                          ? 'bg-[#777B59] text-[#FFF8EF] border-[#777B59] shadow-xs'
-                          : 'bg-[#FFF8EF] dark:bg-[#29272A] border-[#D6BDA5] dark:border-[#5A5055] hover:bg-[#F4E8D9] dark:hover:bg-[#454047]'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <div
-                          className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-[11px] ${
-                            isSelected ? 'bg-[#FFF8EF] text-[#777B59]' : 'bg-[#777B59] text-[#FFF8EF]'
-                          }`}
-                        >
-                          {org.displayName.charAt(0)}
-                        </div>
-                        <div>
-                          <p className={`font-bold ${isSelected ? 'text-[#FFF8EF]' : 'text-[#63463C] dark:text-[#F5EDE5]'}`}>
-                            {org.displayName}
-                          </p>
-                          <p className={`text-[10px] ${isSelected ? 'text-[#FFF8EF]/80' : 'text-[#777B59] dark:text-[#A6A98A]'}`}>
-                            {org.role}
-                          </p>
-                        </div>
-                      </div>
-                      {isSelected && <Check className="w-4 h-4 text-[#FFF8EF]" />}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
             {/* Edit details form */}
-            <form onSubmit={handleSaveProfile} className="space-y-3 pt-3 border-t border-[#D6BDA5]/50 dark:border-[#5A5055]/50">
-              <h4 className="font-bold text-[#63463C] dark:text-[#F5EDE5]">Edit Profile Information</h4>
+            <form onSubmit={handleSaveProfile} className="space-y-3 pt-2">
+              <h4 className="font-bold text-[#63463C] dark:text-[#F5EDE5]">Edit Profile Details</h4>
 
               <div>
                 <label className="block text-[11px] font-semibold text-[#63463C] dark:text-[#D7C5C0] mb-1">
-                  Display Name
+                  Full Name
                 </label>
                 <input
                   type="text"
                   value={customName}
                   onChange={(e) => setCustomName(e.target.value)}
+                  placeholder="e.g. Bhumika Devnath"
                   className="w-full px-3 py-2 rounded-xl bg-[#FFF8EF] dark:bg-[#29272A] border border-[#D6BDA5] dark:border-[#5A5055] text-xs text-[#392D29] dark:text-[#F5EDE5] focus:outline-none focus:ring-1 focus:ring-[#777B59]"
                 />
               </div>
@@ -352,23 +338,183 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   type="text"
                   value={customRole}
                   onChange={(e) => setCustomRole(e.target.value)}
+                  placeholder="e.g. Lead Floral & Event Stylist"
                   className="w-full px-3 py-2 rounded-xl bg-[#FFF8EF] dark:bg-[#29272A] border border-[#D6BDA5] dark:border-[#5A5055] text-xs text-[#392D29] dark:text-[#F5EDE5] focus:outline-none focus:ring-1 focus:ring-[#777B59]"
                 />
               </div>
 
+              <div>
+                <label className="block text-[11px] font-semibold text-[#63463C] dark:text-[#D7C5C0] mb-1">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  disabled
+                  value={user.email}
+                  className="w-full px-3 py-2 rounded-xl bg-[#F4E8D9]/50 dark:bg-[#393438]/50 border border-[#D6BDA5]/50 dark:border-[#5A5055]/50 text-xs text-[#392D29]/70 dark:text-[#B7A9A6] cursor-not-allowed"
+                />
+                <span className="text-[10px] text-[#777B59] dark:text-[#A6A98A] mt-1 block">
+                  Managed via Woodland Vault credentials.
+                </span>
+              </div>
+
               {saveMessage && (
-                <p className="text-[11px] text-[#777B59] dark:text-[#A6A98A] font-bold">
-                  {saveMessage}
-                </p>
+                <div className="p-2.5 rounded-xl bg-[#777B59]/15 border border-[#777B59]/30 text-[11px] text-[#777B59] dark:text-[#A6A98A] font-bold flex items-center gap-1.5">
+                  <Check className="w-3.5 h-3.5" />
+                  <span>{saveMessage}</span>
+                </div>
               )}
 
               <button
                 type="submit"
-                className="w-full py-2 bg-[#777B59] hover:bg-[#686c4e] text-[#FFF8EF] font-bold rounded-xl text-xs shadow-sm transition-colors cursor-pointer"
+                className="w-full py-2.5 bg-[#777B59] hover:bg-[#686c4e] text-[#FFF8EF] font-bold rounded-xl text-xs shadow-sm transition-colors cursor-pointer"
               >
                 Save Profile Changes
               </button>
             </form>
+          </div>
+        )}
+
+        {/* Tab 3: Security & Demo Settings */}
+        {activeTab === 'security' && (
+          <div className="space-y-5 text-xs">
+            {/* Cloud Vault & Authentication */}
+            <div className="p-4 rounded-2xl bg-[#FFF8EF] dark:bg-[#29272A] border border-[#D6BDA5] dark:border-[#5A5055] space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-[#777B59]/15 text-[#777B59] dark:text-[#A6A98A] flex items-center justify-center">
+                    <ShieldCheck className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-xs text-[#63463C] dark:text-[#F5EDE5]">
+                      Woodland Vault & Cloud Auth
+                    </h4>
+                    <p className="text-[10px] text-[#777B59] dark:text-[#A6A98A]">
+                      {isSupabaseConfigured ? 'Cloud Sync Enabled' : 'Local Vault Storage (Browser Storage)'}
+                    </p>
+                  </div>
+                </div>
+                <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border ${
+                  isSupabaseConfigured
+                    ? 'bg-[#777B59]/15 text-[#777B59] border-[#777B59]/30'
+                    : 'bg-[#B58D99]/15 text-[#B58D99] dark:text-[#DEBAC7] border-[#B58D99]/30'
+                }`}>
+                  {isSupabaseConfigured ? 'Cloud Synced' : 'Local Mode'}
+                </span>
+              </div>
+
+              <p className="text-[11px] text-[#392D29]/70 dark:text-[#B7A9A6] leading-relaxed">
+                Log in or switch accounts using the Woodland Vault credentials modal to persist and sync event documents across devices.
+              </p>
+
+              {onOpenAuth && (
+                <button
+                  onClick={() => {
+                    onClose();
+                    onOpenAuth();
+                  }}
+                  className="w-full py-2 px-3 rounded-xl bg-[#777B59] hover:bg-[#686c4e] text-[#FFF8EF] font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+                >
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>Open Woodland Vault Login</span>
+                </button>
+              )}
+            </div>
+
+            {/* Developer & Demo Data Management */}
+            <div className="p-4 rounded-2xl bg-[#F4E8D9]/70 dark:bg-[#29272A] border border-[#D6BDA5] dark:border-[#5A5055] space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-[#B58D99]/15 text-[#B58D99] dark:text-[#DEBAC7] flex items-center justify-center">
+                  <AlertTriangle className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-xs text-[#63463C] dark:text-[#F5EDE5]">
+                    Developer & Showcase Data
+                  </h4>
+                  <p className="text-[10px] text-[#392D29]/65 dark:text-[#B7A9A6]">
+                    Demo reset & test management
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-[11px] text-[#392D29]/75 dark:text-[#B7A9A6] leading-relaxed">
+                Resetting sample data restores all curated woodland events (Enchanted Autumn Harvest, Secret Forest Wedding), tasks, budget entries, guest lists, and moodboards to their initial showcase state.
+              </p>
+
+              {onResetData && (
+                <button
+                  onClick={() => {
+                    if (window.confirm('Reset all events, tasks, budget items, and guests back to default woodland showcase data?')) {
+                      onResetData();
+                      onClose();
+                    }
+                  }}
+                  className="w-full py-2 px-3 rounded-xl bg-[#FFF8EF] dark:bg-[#393438] border border-[#B58D99] hover:bg-[#B58D99]/10 text-[#63463C] dark:text-[#F5EDE5] font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  <RotateCcw className="w-3.5 h-3.5 text-[#B58D99]" />
+                  <span>Reset Showcase Data</span>
+                </button>
+              )}
+            </div>
+
+            {/* Demo Personas for Multi-User Testing */}
+            <div className="p-4 rounded-2xl bg-[#FFF8EF] dark:bg-[#29272A] border border-[#D6BDA5] dark:border-[#5A5055] space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-[#777B59]/15 text-[#777B59] dark:text-[#A6A98A] flex items-center justify-center">
+                  <Users className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-xs text-[#63463C] dark:text-[#F5EDE5]">
+                    Demo Organizer Personas (Testing)
+                  </h4>
+                  <p className="text-[10px] text-[#777B59] dark:text-[#A6A98A]">
+                    Simulate collaborating planners
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-1.5 pt-1">
+                {PRESET_ORGANIZERS.map((org) => {
+                  const isSelected = user.id === org.id;
+                  return (
+                    <button
+                      key={org.id}
+                      onClick={() => {
+                        onSelectUser(org);
+                        setCustomName(org.displayName);
+                        setCustomRole(org.role);
+                        setSaveMessage(`Switched to ${org.displayName}`);
+                        setTimeout(() => setSaveMessage(''), 2000);
+                      }}
+                      className={`w-full p-2 rounded-xl border text-left flex items-center justify-between transition-all cursor-pointer ${
+                        isSelected
+                          ? 'bg-[#777B59] text-[#FFF8EF] border-[#777B59] shadow-xs'
+                          : 'bg-[#F4E8D9]/50 dark:bg-[#393438] border-[#D6BDA5]/60 dark:border-[#5A5055] hover:bg-[#F4E8D9] dark:hover:bg-[#454047]'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <div
+                          className={`w-6 h-6 rounded-lg flex items-center justify-center font-bold text-[10px] ${
+                            isSelected ? 'bg-[#FFF8EF] text-[#777B59]' : 'bg-[#777B59] text-[#FFF8EF]'
+                          }`}
+                        >
+                          {org.displayName.charAt(0)}
+                        </div>
+                        <div>
+                          <p className={`font-bold text-xs ${isSelected ? 'text-[#FFF8EF]' : 'text-[#63463C] dark:text-[#F5EDE5]'}`}>
+                            {org.displayName}
+                          </p>
+                          <p className={`text-[9px] ${isSelected ? 'text-[#FFF8EF]/80' : 'text-[#777B59] dark:text-[#A6A98A]'}`}>
+                            {org.role}
+                          </p>
+                        </div>
+                      </div>
+                      {isSelected && <Check className="w-3.5 h-3.5 text-[#FFF8EF]" />}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         )}
       </div>

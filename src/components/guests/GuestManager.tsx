@@ -14,6 +14,7 @@ import {
   X,
   Share2,
   Check,
+  Shield,
 } from 'lucide-react';
 import { ScrewRivet, MushroomIcon } from '../common/WoodlandIcons';
 import { GuestItem, RSVPStatus, EventItem } from '../../types';
@@ -25,6 +26,7 @@ interface GuestManagerProps {
   onSaveGuest: (guest: Omit<GuestItem, 'id' | 'createdAt'> & { id?: string }) => void;
   onUpdateRSVP: (id: string, status: RSVPStatus) => void;
   onDeleteGuest: (id: string) => void;
+  canEdit?: boolean;
 }
 
 export const GuestManager: React.FC<GuestManagerProps> = ({
@@ -34,6 +36,7 @@ export const GuestManager: React.FC<GuestManagerProps> = ({
   onSaveGuest,
   onUpdateRSVP,
   onDeleteGuest,
+  canEdit = true,
 }) => {
   const [filterEventId, setFilterEventId] = useState<string>(activeEvent?.id || 'all');
   const [filterStatus, setFilterStatus] = useState<string>('All');
@@ -169,13 +172,20 @@ Dietary Notes: ${dietaryCount} guests with special requests.
             {copiedSummary ? <Check className="w-3.5 h-3.5 text-[#777B59] dark:text-[#A6A98A]" /> : <Share2 className="w-3.5 h-3.5" />}
             <span>{copiedSummary ? 'Copied' : 'RSVP Summary'}</span>
           </button>
-          <button
-            onClick={openAddModal}
-            className="bg-[#777B59] hover:bg-[#686c4e] text-[#FFF8EF] font-bold px-4 py-2 rounded-xl border border-[#A6A98A] text-xs flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
-          >
-            <PlusCircle className="w-4 h-4" />
-            <span>Add Guest</span>
-          </button>
+          {canEdit ? (
+            <button
+              onClick={openAddModal}
+              className="bg-[#777B59] hover:bg-[#686c4e] text-[#FFF8EF] font-bold px-4 py-2 rounded-xl border border-[#A6A98A] text-xs flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+            >
+              <PlusCircle className="w-4 h-4" />
+              <span>Add Guest</span>
+            </button>
+          ) : (
+            <div className="bg-[#A6A98A]/20 text-[#63463C] dark:text-[#D7C5C0] font-bold px-3 py-2 rounded-xl border border-[#A6A98A]/40 text-xs flex items-center gap-1.5 shadow-xs">
+              <Shield className="w-4 h-4 text-[#777B59]" />
+              <span>View-Only Mode</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -387,26 +397,30 @@ Dietary Notes: ${dietaryCount} guests with special requests.
 
                     {/* Actions */}
                     <td className="py-3 px-3 text-center">
-                      <div className="flex items-center justify-center gap-1">
-                        <button
-                          onClick={() => openEditModal(guest)}
-                          className="p-1 rounded text-[#63463C] dark:text-[#D7C5C0] hover:bg-[#F4E8D9] dark:hover:bg-[#29272A] cursor-pointer"
-                          title="Edit guest"
-                        >
-                          <Edit2 className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            if (window.confirm(`Remove "${guest.name}" from guest list?`)) {
-                              onDeleteGuest(guest.id);
-                            }
-                          }}
-                          className="p-1 rounded text-[#B58D99] hover:bg-[#F4E8D9] dark:hover:bg-[#29272A] cursor-pointer"
-                          title="Delete guest"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
+                      {canEdit ? (
+                        <div className="flex items-center justify-center gap-1">
+                          <button
+                            onClick={() => openEditModal(guest)}
+                            className="p-1 rounded text-[#63463C] dark:text-[#D7C5C0] hover:bg-[#F4E8D9] dark:hover:bg-[#29272A] cursor-pointer"
+                            title="Edit guest"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (window.confirm(`Remove "${guest.name}" from guest list?`)) {
+                                onDeleteGuest(guest.id);
+                              }
+                            }}
+                            className="p-1 rounded text-[#B58D99] hover:bg-[#F4E8D9] dark:hover:bg-[#29272A] cursor-pointer"
+                            title="Delete guest"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-[10px] text-[#777B59] dark:text-[#A6A98A]">Read-Only</span>
+                      )}
                     </td>
                   </tr>
                 );

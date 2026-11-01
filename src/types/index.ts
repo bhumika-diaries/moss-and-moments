@@ -135,12 +135,91 @@ export interface UserProfile {
   avatarSeed: string;
 }
 
+export interface PaletteColor {
+  id: string;
+  name: string;
+  hex: string;
+  note?: string;
+  textDark?: boolean;
+}
+
+export interface EventMoodboardTheme {
+  id: string;
+  name: string;
+  description: string;
+  eventType: string;
+  moodKeywords: string[];
+  palette: PaletteColor[];
+  categories: string[];
+  suggestedIdeas: { title: string; category: string; description: string }[];
+}
+
+export interface EventMoodboardConfig {
+  eventId: string;
+  themeId: string;
+  themeName: string;
+  themeDescription: string;
+  palette: PaletteColor[];
+  categories: string[];
+  isCustomTheme?: boolean;
+  updatedAt: string;
+}
+
 export interface MoodboardPin {
   id: string;
   eventId: string;
   title: string;
-  category: 'Florals' | 'Tablescape' | 'Stationery' | 'Lighting' | 'Attire' | 'Catering';
+  category: string;
   notes: string;
   palette: string[];
-  iconType: 'mushroom' | 'leaf' | 'flower' | 'sparkle' | 'lantern';
+  imageUrl?: string;
+  iconType?: 'mushroom' | 'leaf' | 'flower' | 'sparkle' | 'lantern' | 'star' | 'heart' | 'camera' | 'music';
+  linkUrl?: string;
+  createdAt?: string;
 }
+
+// Multi-User Event Collaboration Types
+export type EventRole = 'owner' | 'co_organizer' | 'editor' | 'viewer';
+
+export type EventSection =
+  | 'dashboard'
+  | 'events'
+  | 'planner'
+  | 'tasks'
+  | 'budget'
+  | 'guests'
+  | 'timeline'
+  | 'moodboard';
+
+export interface Collaborator {
+  id: string;
+  eventId: string;
+  userId?: string;
+  email: string;
+  name: string;
+  role: EventRole;
+  permissions: EventSection[];
+  status: 'accepted' | 'pending' | 'expired' | 'revoked';
+  invitedAt: string;
+  acceptedAt?: string;
+  inviteToken?: string;
+  lastActive?: string;
+  avatarSeed?: string;
+}
+
+export interface EventInvitation {
+  id: string;
+  eventId: string;
+  eventName: string;
+  invitedEmail: string;
+  invitedName?: string;
+  role: EventRole;
+  permissions: EventSection[];
+  token: string;
+  status: 'pending' | 'accepted' | 'expired' | 'revoked';
+  invitedByUserId: string;
+  invitedByName: string;
+  createdAt: string;
+  expiresAt: string;
+}
+

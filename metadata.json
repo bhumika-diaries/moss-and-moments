@@ -2,5 +2,7 @@
   "name": "Moss & Moments",
   "description": "A whimsical woodland-inspired GenAI event planning companion for organizing celebrations, budgets, guests, tasks, and magical moments.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }

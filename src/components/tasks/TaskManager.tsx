@@ -7,6 +7,7 @@ import {
   Edit2,
   Calendar,
   X,
+  Shield,
 } from 'lucide-react';
 import { ScrewRivet, MushroomIcon } from '../common/WoodlandIcons';
 import { TaskItem, TaskPriority, EventItem } from '../../types';
@@ -19,6 +20,7 @@ interface TaskManagerProps {
   onSaveTask: (task: Omit<TaskItem, 'id' | 'createdAt'> & { id?: string }) => void;
   onDeleteTask: (id: string) => void;
   onSelectEvent: (id: string) => void;
+  canEdit?: boolean;
 }
 
 const CATEGORIES = [
@@ -40,6 +42,7 @@ export const TaskManager: React.FC<TaskManagerProps> = ({
   onToggleTask,
   onSaveTask,
   onDeleteTask,
+  canEdit = true,
 }) => {
   const [filterEventId, setFilterEventId] = useState<string>(activeEvent?.id || 'all');
   const [filterStatus, setFilterStatus] = useState<string>('All');
@@ -143,13 +146,20 @@ export const TaskManager: React.FC<TaskManagerProps> = ({
           </h1>
         </div>
 
-        <button
-          onClick={openAddModal}
-          className="bg-[#777B59] hover:bg-[#686c4e] text-[#FFF8EF] font-bold px-4 py-2.5 rounded-xl border border-[#A6A98A] text-xs flex items-center gap-1.5 shadow-sm transition-colors self-start sm:self-auto cursor-pointer"
-        >
-          <PlusCircle className="w-4 h-4" />
-          <span>Add Task</span>
-        </button>
+        {canEdit ? (
+          <button
+            onClick={openAddModal}
+            className="bg-[#777B59] hover:bg-[#686c4e] text-[#FFF8EF] font-bold px-4 py-2.5 rounded-xl border border-[#A6A98A] text-xs flex items-center gap-1.5 shadow-sm transition-colors self-start sm:self-auto cursor-pointer"
+          >
+            <PlusCircle className="w-4 h-4" />
+            <span>Add Task</span>
+          </button>
+        ) : (
+          <div className="bg-[#A6A98A]/20 text-[#63463C] dark:text-[#D7C5C0] font-bold px-3.5 py-2 rounded-xl border border-[#A6A98A]/40 text-xs flex items-center gap-1.5 shadow-xs self-start sm:self-auto">
+            <Shield className="w-4 h-4 text-[#777B59]" />
+            <span>View-Only Mode</span>
+          </div>
+        )}
       </div>
 
       {/* Progress Metric Banner */}
@@ -267,8 +277,12 @@ export const TaskManager: React.FC<TaskManagerProps> = ({
                 <input
                   type="checkbox"
                   checked={isDone}
-                  onChange={() => onToggleTask(task.id)}
-                  className="mt-1 w-5 h-5 accent-[#777B59] rounded cursor-pointer shrink-0"
+                  disabled={!canEdit}
+                  onChange={() => canEdit && onToggleTask(task.id)}
+                  className={`mt-1 w-5 h-5 accent-[#777B59] rounded shrink-0 ${
+                    canEdit ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'
+                  }`}
+                  title={canEdit ? 'Mark task completed' : 'Viewing access only (Read-Only)'}
                 />
 
                 <div className="flex-1 min-w-0">
@@ -312,26 +326,28 @@ export const TaskManager: React.FC<TaskManagerProps> = ({
               </div>
 
               {/* Action buttons */}
-              <div className="flex items-center gap-1 shrink-0 pt-1">
-                <button
-                  onClick={() => openEditModal(task)}
-                  className="p-1.5 rounded-lg text-[#63463C] dark:text-[#D7C5C0] hover:bg-[#F4E8D9] dark:hover:bg-[#454047] transition-colors cursor-pointer"
-                  title="Edit task"
-                >
-                  <Edit2 className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={() => {
-                    if (window.confirm(`Delete task "${task.title}"?`)) {
-                      onDeleteTask(task.id);
-                    }
-                  }}
-                  className="p-1.5 rounded-lg text-[#B58D99] hover:bg-[#F4E8D9] dark:hover:bg-[#454047] transition-colors cursor-pointer"
-                  title="Delete task"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
+              {canEdit ? (
+                <div className="flex items-center gap-1 shrink-0 pt-1">
+                  <button
+                    onClick={() => openEditModal(task)}
+                    className="p-1.5 rounded-lg text-[#63463C] dark:text-[#D7C5C0] hover:bg-[#F4E8D9] dark:hover:bg-[#454047] transition-colors cursor-pointer"
+                    title="Edit task"
+                  >
+                    <Edit2 className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (window.confirm(`Delete task "${task.title}"?`)) {
+                        onDeleteTask(task.id);
+                      }
+                    }}
+                    className="p-1.5 rounded-lg text-[#B58D99] hover:bg-[#F4E8D9] dark:hover:bg-[#454047] transition-colors cursor-pointer"
+                    title="Delete task"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ) : null}
             </div>
           );
         })}

@@ -9,6 +9,7 @@ import {
   X,
   MapPin,
   UserCheck,
+  Shield,
 } from 'lucide-react';
 import { ScrewRivet, MushroomIcon } from '../common/WoodlandIcons';
 import { TimelineSlot, EventItem, TaskItem } from '../../types';
@@ -20,6 +21,7 @@ interface TimelineCalendarProps {
   activeEvent: EventItem | undefined;
   onSaveSlot: (slot: Omit<TimelineSlot, 'id'> & { id?: string }) => void;
   onDeleteSlot: (id: string) => void;
+  canEdit?: boolean;
 }
 
 export const TimelineCalendar: React.FC<TimelineCalendarProps> = ({
@@ -29,6 +31,7 @@ export const TimelineCalendar: React.FC<TimelineCalendarProps> = ({
   activeEvent,
   onSaveSlot,
   onDeleteSlot,
+  canEdit = true,
 }) => {
   const [filterEventId, setFilterEventId] = useState<string>(activeEvent?.id || events[0]?.id || '');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -131,13 +134,20 @@ export const TimelineCalendar: React.FC<TimelineCalendarProps> = ({
             <Printer className="w-3.5 h-3.5 text-[#777B59] dark:text-[#A6A98A]" />
             <span>Print Itinerary</span>
           </button>
-          <button
-            onClick={openAddModal}
-            className="bg-[#777B59] hover:bg-[#686c4e] text-[#FFF8EF] font-bold px-4 py-2 rounded-xl border border-[#A6A98A] text-xs flex items-center gap-1.5 shadow-xs transition-colors"
-          >
-            <PlusCircle className="w-4 h-4" />
-            <span>Add Time Slot</span>
-          </button>
+          {canEdit ? (
+            <button
+              onClick={openAddModal}
+              className="bg-[#777B59] hover:bg-[#686c4e] text-[#FFF8EF] font-bold px-4 py-2 rounded-xl border border-[#A6A98A] text-xs flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+            >
+              <PlusCircle className="w-4 h-4" />
+              <span>Add Time Slot</span>
+            </button>
+          ) : (
+            <div className="bg-[#A6A98A]/20 text-[#63463C] dark:text-[#D7C5C0] font-bold px-3 py-2 rounded-xl border border-[#A6A98A]/40 text-xs flex items-center gap-1.5 shadow-xs">
+              <Shield className="w-4 h-4 text-[#777B59]" />
+              <span>View-Only Mode</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -184,13 +194,14 @@ export const TimelineCalendar: React.FC<TimelineCalendarProps> = ({
               <div key={slot.id} className="relative group">
                 {/* Node rivet */}
                 <button
-                  onClick={() => handleToggleComplete(slot)}
+                  onClick={() => canEdit && handleToggleComplete(slot)}
+                  disabled={!canEdit}
                   className={`absolute -left-[31px] sm:-left-[39px] top-1.5 w-5 h-5 rounded-full border-2 transition-all flex items-center justify-center ${
                     isDone
                       ? 'bg-[#777B59] border-[#FFF8EF] dark:border-[#29272A] text-[#FFF8EF]'
                       : 'bg-[#FFF8EF] dark:bg-[#393438] border-[#777B59] hover:bg-[#F4E8D9] dark:hover:bg-[#454047]'
-                  }`}
-                  title={isDone ? 'Mark as incomplete' : 'Mark as completed'}
+                  } ${!canEdit ? 'cursor-default opacity-70' : 'cursor-pointer'}`}
+                  title={canEdit ? (isDone ? 'Mark as incomplete' : 'Mark as completed') : 'Read-only access'}
                 >
                   {isDone && <CheckCircle2 className="w-3.5 h-3.5" />}
                 </button>
@@ -224,20 +235,26 @@ export const TimelineCalendar: React.FC<TimelineCalendarProps> = ({
                           <span>{slot.responsiblePerson}</span>
                         </span>
                       )}
-                      <button
-                        onClick={() => openEditModal(slot)}
-                        className="p-1 rounded text-[#63463C] dark:text-[#D7C5C0] hover:bg-[#F4E8D9] dark:hover:bg-[#29272A]"
-                        title="Edit slot"
-                      >
-                        <Edit2 className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => onDeleteSlot(slot.id)}
-                        className="p-1 rounded text-[#B58D99] hover:bg-[#F4E8D9] dark:hover:bg-[#29272A]"
-                        title="Delete slot"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      {canEdit ? (
+                        <>
+                          <button
+                            onClick={() => openEditModal(slot)}
+                            className="p-1 rounded text-[#63463C] dark:text-[#D7C5C0] hover:bg-[#F4E8D9] dark:hover:bg-[#29272A] cursor-pointer"
+                            title="Edit slot"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => onDeleteSlot(slot.id)}
+                            className="p-1 rounded text-[#B58D99] hover:bg-[#F4E8D9] dark:hover:bg-[#29272A] cursor-pointer"
+                            title="Delete slot"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </>
+                      ) : (
+                        <span className="text-[10px] text-[#777B59] dark:text-[#A6A98A]">Read-Only</span>
+                      )}
                     </div>
                   </div>
 

@@ -6,7 +6,24 @@ import {
   TimelineSlot,
   UserProfile,
   MoodboardPin,
+  EventMoodboardConfig,
+  Collaborator,
+  EventInvitation,
+  EventRole,
+  EventSection,
 } from '../types';
+import { createDefaultConfig } from './eventThemes';
+
+export const ALL_EVENT_SECTIONS: { id: EventSection; label: string; description: string }[] = [
+  { id: 'dashboard', label: 'Dashboard & Overview', description: 'Metrics, quick stats & recent logs' },
+  { id: 'events', label: 'Events & Calendar', description: 'Schedule dates, list & event switching' },
+  { id: 'planner', label: 'AI Planner', description: 'GenAI plans, themes & concept suggestions' },
+  { id: 'tasks', label: 'Checklist', description: 'Task items, assignments & deadlines' },
+  { id: 'budget', label: 'Budget Tracker', description: 'Expenses, allocations & cost totals' },
+  { id: 'guests', label: 'Guests & RSVPs', description: 'Attendee registry, seating & meal notes' },
+  { id: 'timeline', label: 'Timeline & Schedule', description: 'Day-of hour-by-hour itinerary' },
+  { id: 'moodboard', label: 'Inspo Sanctuary', description: 'Visual pins, swatches & color palettes' },
+];
 
 const STORAGE_KEYS = {
   USER: 'moss_moments_user',
@@ -16,7 +33,10 @@ const STORAGE_KEYS = {
   GUESTS: 'moss_moments_guests',
   TIMELINE: 'moss_moments_timeline',
   MOODBOARD: 'moss_moments_moodboard',
+  MOODBOARD_CONFIGS: 'moss_moments_moodboard_configs',
   ACTIVE_EVENT_ID: 'moss_moments_active_event_id',
+  COLLABORATORS: 'moss_moments_collaborators',
+  INVITATIONS: 'moss_moments_invitations',
 };
 
 // Default seed user
@@ -74,6 +94,185 @@ const SEED_EVENTS: EventItem[] = [
     status: 'Planning',
     createdAt: '2026-10-25T16:45:00Z',
     updatedAt: '2026-10-30T09:20:00Z',
+  },
+];
+
+// Initial Seed Collaborators
+const SEED_COLLABORATORS: Collaborator[] = [
+  // Rowan & Lyra's botanical wedding
+  {
+    id: 'collab-owner-wedding',
+    eventId: 'evt-woodland-wedding',
+    userId: DEFAULT_USER.id,
+    email: DEFAULT_USER.email,
+    name: DEFAULT_USER.displayName,
+    role: 'owner',
+    permissions: ['dashboard', 'events', 'planner', 'tasks', 'budget', 'guests', 'timeline', 'moodboard'],
+    status: 'accepted',
+    invitedAt: '2026-10-15T10:00:00Z',
+    acceptedAt: '2026-10-15T10:00:00Z',
+    lastActive: 'Just now',
+    avatarSeed: 'woodland-owl',
+  },
+  {
+    id: 'collab-1',
+    eventId: 'evt-woodland-wedding',
+    userId: 'usr-rowan-vance',
+    email: 'rowan.vance@fernridge.org',
+    name: 'Rowan Vance',
+    role: 'co_organizer',
+    permissions: ['dashboard', 'events', 'planner', 'tasks', 'budget', 'guests', 'timeline', 'moodboard'],
+    status: 'accepted',
+    invitedAt: '2026-10-16T11:00:00Z',
+    acceptedAt: '2026-10-16T14:30:00Z',
+    lastActive: '2 hours ago',
+    avatarSeed: 'rowan-v',
+  },
+  {
+    id: 'collab-2',
+    eventId: 'evt-woodland-wedding',
+    userId: 'usr-lyra-sterling',
+    email: 'lyra.sterling@botanical.me',
+    name: 'Lyra Sterling',
+    role: 'co_organizer',
+    permissions: ['dashboard', 'events', 'planner', 'tasks', 'budget', 'guests', 'timeline', 'moodboard'],
+    status: 'accepted',
+    invitedAt: '2026-10-16T11:00:00Z',
+    acceptedAt: '2026-10-17T09:15:00Z',
+    lastActive: 'Yesterday',
+    avatarSeed: 'lyra-s',
+  },
+  {
+    id: 'collab-3',
+    eventId: 'evt-woodland-wedding',
+    userId: 'usr-oliver-bramble',
+    email: 'oliver.bramble@florist.com',
+    name: 'Oliver Bramble',
+    role: 'editor',
+    permissions: ['dashboard', 'tasks', 'budget', 'moodboard'],
+    status: 'accepted',
+    invitedAt: '2026-10-18T15:00:00Z',
+    acceptedAt: '2026-10-19T10:00:00Z',
+    lastActive: '3 days ago',
+    avatarSeed: 'oliver-b',
+  },
+  {
+    id: 'collab-4',
+    eventId: 'evt-woodland-wedding',
+    email: 'clara.finch@guestlist.io',
+    name: 'Clara Finch',
+    role: 'viewer',
+    permissions: ['dashboard', 'guests', 'timeline'],
+    status: 'pending',
+    invitedAt: '2026-10-24T10:00:00Z',
+    inviteToken: 'mm-inv-clara-finch-782',
+    avatarSeed: 'clara-f',
+  },
+  // Garden Tea Party
+  {
+    id: 'collab-tp-owner',
+    eventId: 'evt-tea-party',
+    userId: DEFAULT_USER.id,
+    email: DEFAULT_USER.email,
+    name: DEFAULT_USER.displayName,
+    role: 'owner',
+    permissions: ['dashboard', 'events', 'planner', 'tasks', 'budget', 'guests', 'timeline', 'moodboard'],
+    status: 'accepted',
+    invitedAt: '2026-10-20T08:15:00Z',
+    acceptedAt: '2026-10-20T08:15:00Z',
+    lastActive: 'Just now',
+    avatarSeed: 'woodland-owl',
+  },
+  {
+    id: 'collab-tp-1',
+    eventId: 'evt-tea-party',
+    userId: 'usr-eleanor-h',
+    email: 'eleanor@willowbark.com',
+    name: 'Eleanor Honeywood',
+    role: 'co_organizer',
+    permissions: ['dashboard', 'events', 'planner', 'tasks', 'budget', 'guests', 'timeline', 'moodboard'],
+    status: 'accepted',
+    invitedAt: '2026-10-21T09:00:00Z',
+    acceptedAt: '2026-10-21T11:20:00Z',
+    lastActive: '4 hours ago',
+    avatarSeed: 'eleanor-h',
+  },
+  {
+    id: 'collab-tp-2',
+    eventId: 'evt-tea-party',
+    userId: 'usr-liam-m',
+    email: 'liam.moss@teacraft.org',
+    name: 'Liam Moss',
+    role: 'editor',
+    permissions: ['dashboard', 'tasks', 'guests', 'timeline'],
+    status: 'accepted',
+    invitedAt: '2026-10-22T14:00:00Z',
+    acceptedAt: '2026-10-23T08:45:00Z',
+    lastActive: 'Yesterday',
+    avatarSeed: 'liam-m',
+  },
+  // Dinner Soirée
+  {
+    id: 'collab-ds-owner',
+    eventId: 'evt-autumn-dinner',
+    userId: DEFAULT_USER.id,
+    email: DEFAULT_USER.email,
+    name: DEFAULT_USER.displayName,
+    role: 'owner',
+    permissions: ['dashboard', 'events', 'planner', 'tasks', 'budget', 'guests', 'timeline', 'moodboard'],
+    status: 'accepted',
+    invitedAt: '2026-10-25T16:45:00Z',
+    acceptedAt: '2026-10-25T16:45:00Z',
+    lastActive: 'Just now',
+    avatarSeed: 'woodland-owl',
+  },
+  {
+    id: 'collab-ds-1',
+    eventId: 'evt-autumn-dinner',
+    userId: 'usr-cedric-f',
+    email: 'cedric@oakwoodcider.com',
+    name: 'Cedric Forest',
+    role: 'editor',
+    permissions: ['dashboard', 'budget', 'timeline', 'moodboard'],
+    status: 'accepted',
+    invitedAt: '2026-10-26T12:00:00Z',
+    acceptedAt: '2026-10-26T15:30:00Z',
+    lastActive: '2 days ago',
+    avatarSeed: 'cedric-f',
+  },
+];
+
+// Initial Seed Invitations
+const SEED_INVITATIONS: EventInvitation[] = [
+  {
+    id: 'inv-1',
+    eventId: 'evt-woodland-wedding',
+    eventName: 'Rowan & Lyra’s Botanical Glasshouse Wedding',
+    invitedEmail: 'clara.finch@guestlist.io',
+    invitedName: 'Clara Finch',
+    role: 'viewer',
+    permissions: ['dashboard', 'guests', 'timeline'],
+    token: 'mm-inv-clara-finch-782',
+    status: 'pending',
+    invitedByUserId: DEFAULT_USER.id,
+    invitedByName: DEFAULT_USER.displayName,
+    createdAt: '2026-10-24T10:00:00Z',
+    expiresAt: '2026-11-24T10:00:00Z',
+  },
+  {
+    id: 'inv-2',
+    eventId: 'evt-woodland-wedding',
+    eventName: 'Rowan & Lyra’s Botanical Glasshouse Wedding',
+    invitedEmail: 'marigold.vale@acousticfolk.com',
+    invitedName: 'Marigold Vale',
+    role: 'editor',
+    permissions: ['dashboard', 'tasks', 'timeline'],
+    token: 'mm-inv-marigold-music-991',
+    status: 'pending',
+    invitedByUserId: DEFAULT_USER.id,
+    invitedByName: DEFAULT_USER.displayName,
+    createdAt: '2026-10-28T16:00:00Z',
+    expiresAt: '2026-11-28T16:00:00Z',
   },
 ];
 
@@ -773,6 +972,411 @@ class StorageService {
     return true;
   }
 
+  // Event-specific Moodboard Config & Theme CRUD
+  getEventMoodboardConfig(event?: EventItem): EventMoodboardConfig | null {
+    if (!event) return null;
+    const configs = this.getItem<Record<string, EventMoodboardConfig>>(STORAGE_KEYS.MOODBOARD_CONFIGS, {});
+    if (configs[event.id]) {
+      return configs[event.id];
+    }
+
+    // Generate initial event-specific theme config based on event type
+    const initialConfig = createDefaultConfig(event);
+    configs[event.id] = initialConfig;
+    this.setItem(STORAGE_KEYS.MOODBOARD_CONFIGS, configs);
+    return initialConfig;
+  }
+
+  saveEventMoodboardConfig(config: EventMoodboardConfig): EventMoodboardConfig {
+    const configs = this.getItem<Record<string, EventMoodboardConfig>>(STORAGE_KEYS.MOODBOARD_CONFIGS, {});
+    const updated: EventMoodboardConfig = {
+      ...config,
+      updatedAt: new Date().toISOString(),
+    };
+    configs[config.eventId] = updated;
+    this.setItem(STORAGE_KEYS.MOODBOARD_CONFIGS, configs);
+
+    // Also sync the event's theme name in event record if present
+    const events = this.getEvents();
+    const eventIdx = events.findIndex((e) => e.id === config.eventId);
+    if (eventIdx !== -1) {
+      events[eventIdx].theme = config.themeName;
+      this.setItem(STORAGE_KEYS.EVENTS, events);
+    }
+
+    return updated;
+  }
+
+  // ==========================================
+  // MULTI-USER COLLABORATION & INVITATIONS
+  // ==========================================
+
+  getCollaborators(eventId?: string): Collaborator[] {
+    const list = this.getItem<Collaborator[]>(STORAGE_KEYS.COLLABORATORS, SEED_COLLABORATORS);
+    if (!list || list.length === 0) {
+      this.setItem(STORAGE_KEYS.COLLABORATORS, SEED_COLLABORATORS);
+      return eventId ? SEED_COLLABORATORS.filter((c) => c.eventId === eventId) : SEED_COLLABORATORS;
+    }
+    return eventId ? list.filter((c) => c.eventId === eventId) : list;
+  }
+
+  getCollaborator(id: string): Collaborator | undefined {
+    return this.getCollaborators().find((c) => c.id === id);
+  }
+
+  saveCollaborator(collabData: Omit<Collaborator, 'id'> & { id?: string }): Collaborator {
+    const collabs = this.getCollaborators();
+    if (collabData.id) {
+      const idx = collabs.findIndex((c) => c.id === collabData.id);
+      if (idx !== -1) {
+        const updated: Collaborator = {
+          ...collabs[idx],
+          ...collabData,
+          id: collabData.id,
+        };
+        collabs[idx] = updated;
+        this.setItem(STORAGE_KEYS.COLLABORATORS, collabs);
+        return updated;
+      }
+    }
+
+    const newCollab: Collaborator = {
+      ...collabData,
+      id: `collab-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+    };
+    collabs.push(newCollab);
+    this.setItem(STORAGE_KEYS.COLLABORATORS, collabs);
+    return newCollab;
+  }
+
+  removeCollaborator(id: string): boolean {
+    const collabs = this.getCollaborators().filter((c) => c.id !== id);
+    this.setItem(STORAGE_KEYS.COLLABORATORS, collabs);
+    return true;
+  }
+
+  updateCollaboratorRole(id: string, role: EventRole, permissions: EventSection[]): Collaborator | null {
+    const collabs = this.getCollaborators();
+    const idx = collabs.findIndex((c) => c.id === id);
+    if (idx === -1) return null;
+
+    collabs[idx] = {
+      ...collabs[idx],
+      role,
+      permissions,
+    };
+    this.setItem(STORAGE_KEYS.COLLABORATORS, collabs);
+    return collabs[idx];
+  }
+
+  getInvitations(eventId?: string): EventInvitation[] {
+    const list = this.getItem<EventInvitation[]>(STORAGE_KEYS.INVITATIONS, SEED_INVITATIONS);
+    if (!list || list.length === 0) {
+      this.setItem(STORAGE_KEYS.INVITATIONS, SEED_INVITATIONS);
+      return eventId ? SEED_INVITATIONS.filter((i) => i.eventId === eventId) : SEED_INVITATIONS;
+    }
+    return eventId ? list.filter((i) => i.eventId === eventId) : list;
+  }
+
+  createInvitation(data: {
+    eventId: string;
+    email: string;
+    name?: string;
+    role: EventRole;
+    permissions: EventSection[];
+    invitedBy: UserProfile;
+  }): { invitation: EventInvitation; collaborator: Collaborator } {
+    const events = this.getEvents();
+    const event = events.find((e) => e.id === data.eventId);
+    const eventName = event ? event.name : 'Woodland Gathering';
+
+    const token = `mm-inv-${Math.random().toString(36).substring(2, 9)}-${Date.now().toString(36)}`;
+    const nowIso = new Date().toISOString();
+    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+
+    const invitation: EventInvitation = {
+      id: `inv-${Date.now()}`,
+      eventId: data.eventId,
+      eventName,
+      invitedEmail: data.email.trim().toLowerCase(),
+      invitedName: data.name?.trim() || data.email.split('@')[0],
+      role: data.role,
+      permissions: data.permissions,
+      token,
+      status: 'pending',
+      invitedByUserId: data.invitedBy.id,
+      invitedByName: data.invitedBy.displayName,
+      createdAt: nowIso,
+      expiresAt,
+    };
+
+    const invitations = this.getInvitations();
+    invitations.unshift(invitation);
+    this.setItem(STORAGE_KEYS.INVITATIONS, invitations);
+
+    // Also add to event collaborators in pending state
+    const collaborator: Collaborator = {
+      id: `collab-${Date.now()}`,
+      eventId: data.eventId,
+      email: data.email.trim().toLowerCase(),
+      name: data.name?.trim() || data.email.split('@')[0],
+      role: data.role,
+      permissions: data.permissions,
+      status: 'pending',
+      invitedAt: nowIso,
+      inviteToken: token,
+      avatarSeed: data.email.split('@')[0],
+    };
+
+    const collabs = this.getCollaborators();
+    // If collaborator already exists for this email and event, update it
+    const existingIdx = collabs.findIndex(
+      (c) => c.eventId === data.eventId && c.email.toLowerCase() === data.email.trim().toLowerCase()
+    );
+    if (existingIdx !== -1) {
+      collabs[existingIdx] = {
+        ...collabs[existingIdx],
+        role: data.role,
+        permissions: data.permissions,
+        status: 'pending',
+        inviteToken: token,
+      };
+      this.setItem(STORAGE_KEYS.COLLABORATORS, collabs);
+    } else {
+      collabs.push(collaborator);
+      this.setItem(STORAGE_KEYS.COLLABORATORS, collabs);
+    }
+
+    return { invitation, collaborator };
+  }
+
+  resendInvitation(invitationId: string): EventInvitation | null {
+    const list = this.getInvitations();
+    const idx = list.findIndex((i) => i.id === invitationId);
+    if (idx === -1) return null;
+
+    const refreshedToken = `mm-inv-${Math.random().toString(36).substring(2, 9)}-${Date.now().toString(36)}`;
+    const updated: EventInvitation = {
+      ...list[idx],
+      token: refreshedToken,
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+    };
+    list[idx] = updated;
+    this.setItem(STORAGE_KEYS.INVITATIONS, list);
+
+    // Also sync the collaborator's inviteToken
+    const collabs = this.getCollaborators();
+    const cIdx = collabs.findIndex(
+      (c) => c.eventId === updated.eventId && c.email.toLowerCase() === updated.invitedEmail.toLowerCase()
+    );
+    if (cIdx !== -1) {
+      collabs[cIdx].inviteToken = refreshedToken;
+      collabs[cIdx].status = 'pending';
+      this.setItem(STORAGE_KEYS.COLLABORATORS, collabs);
+    }
+
+    return updated;
+  }
+
+  cancelInvitation(invitationId: string): boolean {
+    const list = this.getInvitations();
+    const inv = list.find((i) => i.id === invitationId);
+    if (!inv) return false;
+
+    // Remove or revoke from invitations
+    const updatedList = list.filter((i) => i.id !== invitationId);
+    this.setItem(STORAGE_KEYS.INVITATIONS, updatedList);
+
+    // Remove pending collaborator if not yet accepted
+    const collabs = this.getCollaborators();
+    const updatedCollabs = collabs.filter(
+      (c) => !(c.eventId === inv.eventId && c.email.toLowerCase() === inv.invitedEmail.toLowerCase() && c.status === 'pending')
+    );
+    this.setItem(STORAGE_KEYS.COLLABORATORS, updatedCollabs);
+    return true;
+  }
+
+  acceptInvitation(token: string, user: UserProfile): { success: boolean; message: string; eventId?: string } {
+    const list = this.getInvitations();
+    const invIdx = list.findIndex((i) => i.token.trim() === token.trim());
+    if (invIdx === -1) {
+      return { success: false, message: 'Invalid or expired invitation token.' };
+    }
+
+    const invitation = list[invIdx];
+    if (invitation.status === 'accepted') {
+      return { success: true, message: `You are already a collaborator on "${invitation.eventName}".`, eventId: invitation.eventId };
+    }
+
+    // Mark invitation accepted
+    list[invIdx].status = 'accepted';
+    this.setItem(STORAGE_KEYS.INVITATIONS, list);
+
+    // Update or add collaborator
+    const collabs = this.getCollaborators();
+    const cIdx = collabs.findIndex(
+      (c) => c.eventId === invitation.eventId && (c.email.toLowerCase() === invitation.invitedEmail.toLowerCase() || c.inviteToken === token)
+    );
+
+    const nowIso = new Date().toISOString();
+    if (cIdx !== -1) {
+      collabs[cIdx] = {
+        ...collabs[cIdx],
+        userId: user.id,
+        name: user.displayName || collabs[cIdx].name,
+        email: user.email || collabs[cIdx].email,
+        status: 'accepted',
+        acceptedAt: nowIso,
+        lastActive: 'Just now',
+      };
+    } else {
+      collabs.push({
+        id: `collab-${Date.now()}`,
+        eventId: invitation.eventId,
+        userId: user.id,
+        email: user.email || invitation.invitedEmail,
+        name: user.displayName || invitation.invitedName || user.email.split('@')[0],
+        role: invitation.role,
+        permissions: invitation.permissions,
+        status: 'accepted',
+        invitedAt: invitation.createdAt,
+        acceptedAt: nowIso,
+        lastActive: 'Just now',
+        avatarSeed: user.avatarSeed || user.email.split('@')[0],
+      });
+    }
+    this.setItem(STORAGE_KEYS.COLLABORATORS, collabs);
+
+    return {
+      success: true,
+      message: `Welcome aboard! You have joined "${invitation.eventName}" as ${invitation.role.replace('_', ' ').toUpperCase()}.`,
+      eventId: invitation.eventId,
+    };
+  }
+
+  transferEventOwnership(eventId: string, newOwnerEmail: string, currentOwner: UserProfile): { success: boolean; message: string } {
+    const events = this.getEvents();
+    const evtIdx = events.findIndex((e) => e.id === eventId);
+    if (evtIdx === -1) return { success: false, message: 'Event not found.' };
+
+    const collabs = this.getCollaborators(eventId);
+    const targetCollabIdx = collabs.findIndex(
+      (c) => c.email.toLowerCase() === newOwnerEmail.trim().toLowerCase()
+    );
+
+    if (targetCollabIdx === -1) {
+      return { success: false, message: 'Target user must already be an accepted collaborator to receive ownership.' };
+    }
+
+    const allCollabs = this.getCollaborators();
+    const allSections: EventSection[] = ['dashboard', 'events', 'planner', 'tasks', 'budget', 'guests', 'timeline', 'moodboard'];
+
+    // Update target collaborator to owner
+    const targetIdx = allCollabs.findIndex(
+      (c) => c.eventId === eventId && c.email.toLowerCase() === newOwnerEmail.trim().toLowerCase()
+    );
+    if (targetIdx !== -1) {
+      allCollabs[targetIdx].role = 'owner';
+      allCollabs[targetIdx].permissions = allSections;
+    }
+
+    // Demote current owner to co_organizer
+    const prevOwnerIdx = allCollabs.findIndex(
+      (c) => c.eventId === eventId && (c.userId === currentOwner.id || c.email.toLowerCase() === currentOwner.email.toLowerCase())
+    );
+    if (prevOwnerIdx !== -1) {
+      allCollabs[prevOwnerIdx].role = 'co_organizer';
+    }
+
+    // Update event ownerId
+    events[evtIdx].ownerId = allCollabs[targetIdx].userId || allCollabs[targetIdx].id;
+    this.setItem(STORAGE_KEYS.EVENTS, events);
+    this.setItem(STORAGE_KEYS.COLLABORATORS, allCollabs);
+
+    return { success: true, message: `Ownership of "${events[evtIdx].name}" successfully transferred to ${newOwnerEmail}.` };
+  }
+
+  getUserEventRole(userId: string, userEmail: string, event?: EventItem): EventRole {
+    if (!event) return 'viewer';
+    if (event.ownerId === userId) return 'owner';
+    if (userEmail && event.ownerId === 'usr-forest-lead-1' && userEmail.toLowerCase() === DEFAULT_USER.email.toLowerCase()) {
+      return 'owner';
+    }
+
+    const collabs = this.getCollaborators(event.id);
+    const member = collabs.find(
+      (c) =>
+        (c.userId && c.userId === userId) ||
+        (userEmail && c.email.toLowerCase() === userEmail.toLowerCase())
+    );
+
+    if (member && member.status === 'accepted') {
+      return member.role;
+    }
+
+    // Fallback if not accepted or not a member: viewer
+    return 'viewer';
+  }
+
+  getUserEventPermissions(userId: string, userEmail: string, event?: EventItem): EventSection[] {
+    const allSections: EventSection[] = [
+      'dashboard',
+      'events',
+      'planner',
+      'tasks',
+      'budget',
+      'guests',
+      'timeline',
+      'moodboard',
+    ];
+
+    if (!event) return allSections;
+    const role = this.getUserEventRole(userId, userEmail, event);
+    if (role === 'owner') return allSections;
+
+    const collabs = this.getCollaborators(event.id);
+    const member = collabs.find(
+      (c) =>
+        (c.userId && c.userId === userId) ||
+        (userEmail && c.email.toLowerCase() === userEmail.toLowerCase())
+    );
+
+    if (member && member.permissions && member.permissions.length > 0) {
+      return member.permissions;
+    }
+
+    // Default permissions by role
+    if (role === 'co_organizer') return allSections;
+    return ['dashboard', 'events', 'tasks', 'budget', 'guests', 'timeline', 'moodboard'];
+  }
+
+  canUserAccessSection(userId: string, userEmail: string, event?: EventItem, section?: EventSection): boolean {
+    if (!section || !event) return true;
+    const role = this.getUserEventRole(userId, userEmail, event);
+    if (role === 'owner') return true;
+
+    const permissions = this.getUserEventPermissions(userId, userEmail, event);
+    return permissions.includes(section);
+  }
+
+  canUserEditSection(userId: string, userEmail: string, event?: EventItem, section?: EventSection): boolean {
+    if (!section || !event) return true;
+    const role = this.getUserEventRole(userId, userEmail, event);
+    if (role === 'owner') return true;
+    if (role === 'viewer') return false; // Viewer has read-only access to permitted sections
+
+    // Co-organizer or Editor: must have permission for this section
+    const permissions = this.getUserEventPermissions(userId, userEmail, event);
+    return permissions.includes(section);
+  }
+
+  canUserManageCollaborators(userId: string, userEmail: string, event?: EventItem): boolean {
+    if (!event) return false;
+    const role = this.getUserEventRole(userId, userEmail, event);
+    return role === 'owner' || role === 'co_organizer';
+  }
+
   // Reset to sample data
   resetAllToDefaults(): void {
     this.setItem(STORAGE_KEYS.USER, DEFAULT_USER);
@@ -782,8 +1386,12 @@ class StorageService {
     this.setItem(STORAGE_KEYS.GUESTS, SEED_GUESTS);
     this.setItem(STORAGE_KEYS.TIMELINE, SEED_TIMELINE);
     this.setItem(STORAGE_KEYS.MOODBOARD, SEED_MOODBOARD);
+    this.setItem(STORAGE_KEYS.MOODBOARD_CONFIGS, {});
     this.setItem(STORAGE_KEYS.ACTIVE_EVENT_ID, SEED_EVENTS[0].id);
+    this.setItem(STORAGE_KEYS.COLLABORATORS, SEED_COLLABORATORS);
+    this.setItem(STORAGE_KEYS.INVITATIONS, SEED_INVITATIONS);
   }
 }
 
 export const storageService = new StorageService();
+

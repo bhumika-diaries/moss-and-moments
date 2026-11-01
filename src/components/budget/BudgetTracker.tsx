@@ -7,6 +7,7 @@ import {
   Trash2,
   Edit2,
   X,
+  Shield,
 } from 'lucide-react';
 import { ScrewRivet, MushroomIcon } from '../common/WoodlandIcons';
 import { ExpenseItem, ExpenseCategory, EventItem } from '../../types';
@@ -19,6 +20,7 @@ interface BudgetTrackerProps {
   onSaveExpense: (expense: Omit<ExpenseItem, 'id' | 'createdAt'> & { id?: string }) => void;
   onDeleteExpense: (id: string) => void;
   onUpdateEventBudget: (eventId: string, newBudget: number) => void;
+  canEdit?: boolean;
 }
 
 const CATEGORIES: ExpenseCategory[] = [
@@ -39,6 +41,7 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
   onSaveExpense,
   onDeleteExpense,
   onUpdateEventBudget,
+  canEdit = true,
 }) => {
   const { formatMoney, activeCurrency } = useCurrency();
   const [filterEventId, setFilterEventId] = useState<string>(activeEvent?.id || 'all');
@@ -157,13 +160,20 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
           </h1>
         </div>
 
-        <button
-          onClick={openAddModal}
-          className="bg-[#777B59] hover:bg-[#686c4e] text-[#FFF8EF] font-bold px-4 py-2.5 rounded-xl border border-[#A6A98A] text-xs flex items-center gap-1.5 shadow-sm transition-colors self-start sm:self-auto cursor-pointer"
-        >
-          <PlusCircle className="w-4 h-4" />
-          <span>Record Expense</span>
-        </button>
+        {canEdit ? (
+          <button
+            onClick={openAddModal}
+            className="bg-[#777B59] hover:bg-[#686c4e] text-[#FFF8EF] font-bold px-4 py-2.5 rounded-xl border border-[#A6A98A] text-xs flex items-center gap-1.5 shadow-sm transition-colors self-start sm:self-auto cursor-pointer"
+          >
+            <PlusCircle className="w-4 h-4" />
+            <span>Record Expense</span>
+          </button>
+        ) : (
+          <div className="bg-[#A6A98A]/20 text-[#63463C] dark:text-[#D7C5C0] font-bold px-3.5 py-2 rounded-xl border border-[#A6A98A]/40 text-xs flex items-center gap-1.5 shadow-xs self-start sm:self-auto">
+            <Shield className="w-4 h-4 text-[#777B59]" />
+            <span>View-Only Mode</span>
+          </div>
+        )}
       </div>
 
       {/* Main Financial Overview */}
@@ -401,26 +411,30 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
                     {formatMoney(exp.amount)}
                   </td>
                   <td className="py-2.5 px-3 text-center whitespace-nowrap">
-                    <div className="flex items-center justify-center gap-1">
-                      <button
-                        onClick={() => openEditModal(exp)}
-                        className="p-1 rounded text-[#63463C] dark:text-[#D7C5C0] hover:bg-[#F4E8D9] dark:hover:bg-[#454047] cursor-pointer"
-                        title="Edit expense"
-                      >
-                        <Edit2 className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => {
-                          if (window.confirm(`Delete expense "${exp.description}"?`)) {
-                            onDeleteExpense(exp.id);
-                          }
-                        }}
-                        className="p-1 rounded text-[#B58D99] hover:bg-[#F4E8D9] dark:hover:bg-[#454047] cursor-pointer"
-                        title="Delete expense"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
+                    {canEdit ? (
+                      <div className="flex items-center justify-center gap-1">
+                        <button
+                          onClick={() => openEditModal(exp)}
+                          className="p-1 rounded text-[#63463C] dark:text-[#D7C5C0] hover:bg-[#F4E8D9] dark:hover:bg-[#454047] cursor-pointer"
+                          title="Edit expense"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (window.confirm(`Delete expense "${exp.description}"?`)) {
+                              onDeleteExpense(exp.id);
+                            }
+                          }}
+                          className="p-1 rounded text-[#B58D99] hover:bg-[#F4E8D9] dark:hover:bg-[#454047] cursor-pointer"
+                          title="Delete expense"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="text-[10px] text-[#777B59] dark:text-[#A6A98A]">Read-Only</span>
+                    )}
                   </td>
                 </tr>
               ))}
