@@ -526,11 +526,11 @@ General deployment process:
 
 The source code is maintained in GitHub for version control and project accessibility.
 
-**Repository:** https://github.com/YOUR_USERNAME/moss-and-moments
+**Repository:** https://github.com/bhumika-diaries/moss-and-moments.git
 
 ### Live Application
 
-**Live Demo:** YOUR_DEPLOYED_APP_URL
+**Live Demo:** https://moss-moments.ai.studio/
 
 ### Project Demonstration
 
