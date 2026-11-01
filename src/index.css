@@ -1,0 +1,122 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-serif: "Playfair Display", Georgia, serif;
+  --font-sans: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-hand: "Caveat", cursive;
+
+  /* Light Theme Palette */
+  --color-parchment: #F4E8D9;
+  --color-cream: #FFF8EF;
+  --color-wood: #63463C;
+  --color-cocoa: #392D29;
+  --color-sage: #A6A98A;
+  --color-olive: #777B59;
+  --color-mauve: #B58D99;
+  --color-mushroom: #D6BDA5;
+
+  /* Warm Vintage Evening Dark Palette */
+  --color-dark-main: #29272A;
+  --color-dark-card: #393438;
+  --color-dark-elevated: #454047;
+  --color-dark-text: #F5EDE5;
+  --color-dark-secondary: #D7C5C0;
+  --color-dark-muted: #B7A9A6;
+  --color-dark-rose: #967783;
+  --color-dark-border: #5A5055;
+}
+
+/* Light / Warm Vintage Evening Dark Mode Semantic Classes */
+.parchment-card {
+  background-color: #FFF8EF;
+  border: 1.5px solid #D6BDA5;
+  color: #392D29;
+  box-shadow: 0 4px 12px -2px rgba(99, 70, 60, 0.08), 0 2px 4px -1px rgba(99, 70, 60, 0.04);
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+}
+
+.dark .parchment-card {
+  background-color: #393438;
+  border-color: #5A5055;
+  color: #F5EDE5;
+  box-shadow: 0 4px 18px -2px rgba(0, 0, 0, 0.35), 0 2px 6px -1px rgba(0, 0, 0, 0.25);
+}
+
+.wood-signboard {
+  background-color: #63463C;
+  border: 2px solid #4A322A;
+  color: #FFF8EF;
+  box-shadow: inset 0 2px 4px rgba(255, 248, 239, 0.12), 0 6px 16px rgba(57, 45, 41, 0.25);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.dark .wood-signboard {
+  background-color: #393438;
+  border-color: #5A5055;
+  color: #F5EDE5;
+  box-shadow: inset 0 2px 4px rgba(245, 237, 229, 0.05), 0 6px 20px rgba(0, 0, 0, 0.45);
+}
+
+.screw-rivet {
+  position: relative;
+  width: 13px;
+  height: 13px;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 35% 35%, #F4E8D9 0%, #D6BDA5 60%, #8A6D5E 100%);
+  border: 1px solid #63463C;
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.25), inset -1px -1px 1px rgba(0,0,0,0.2);
+}
+
+.dark .screw-rivet {
+  background: radial-gradient(circle at 35% 35%, #B58D99 0%, #5A5055 60%, #29272A 100%);
+  border-color: #5A5055;
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5), inset -1px -1px 1px rgba(0,0,0,0.4);
+}
+
+.screw-rivet::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 20%;
+  right: 20%;
+  height: 1.5px;
+  background-color: #4A322A;
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.dark .screw-rivet::after {
+  background-color: #29272A;
+}
+
+/* Woodland dotted dashed divider */
+.forest-divider {
+  border-top: 2px dashed #D6BDA5;
+}
+
+.dark .forest-divider {
+  border-top: 2px dashed #5A5055;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #F4E8D9;
+}
+.dark ::-webkit-scrollbar-track {
+  background: #29272A;
+}
+::-webkit-scrollbar-thumb {
+  background: #D6BDA5;
+  border-radius: 4px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #5A5055;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #B58D99;
+}
