@@ -633,7 +633,7 @@ To contribute:
 
 **Project:** Moss & Moments  
 **Category:** AI-Powered Event Management  
-**Repository:** [GitHub](https://github.com/bhumika-diaries/moss-and-moments.git)
+**Repository:** https://github.com/bhumika-diaries/moss-and-moments.git
 
 ---
 
